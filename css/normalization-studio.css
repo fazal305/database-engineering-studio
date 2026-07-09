@@ -1,0 +1,77 @@
+.normalization-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.normalization-controls {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.fd-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.fd-item {
+  padding: 0.75rem;
+  border-radius: calc(var(--radius) - 6px);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-soft) 72%, transparent);
+}
+
+.norm-step-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.norm-table-card {
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.timeline-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-pill {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.timeline-pill.active {
+  color: var(--text);
+  background: var(--primary-soft);
+  border-color: color-mix(in srgb, var(--primary) 38%, transparent);
+}
+
+.sample-table-card {
+  padding: 0.85rem;
+  border-radius: calc(var(--radius) - 6px);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-soft) 72%, transparent);
+  cursor: pointer;
+}
+
+.sample-table-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 42%, transparent);
+}
+
+@media (max-width: 1120px) {
+  .normalization-layout,
+  .norm-step-grid {
+    grid-template-columns: 1fr;
+  }
+}

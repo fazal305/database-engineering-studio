@@ -1,0 +1,77 @@
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 1rem;
+}
+
+.builder-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.clause-panel {
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.clause-title {
+  margin: 0 0 0.8rem;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+
+.builder-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) auto;
+  gap: 0.5rem;
+  align-items: end;
+  margin-bottom: 0.65rem;
+}
+
+.sql-preview {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.saved-query-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.saved-query-card {
+  padding: 0.85rem;
+  border-radius: calc(var(--radius) - 6px);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-soft) 72%, transparent);
+}
+
+@media (max-width: 1200px) {
+  .builder-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sql-preview {
+    position: relative;
+    top: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .builder-row {
+    grid-template-columns: 1fr;
+  }
+}

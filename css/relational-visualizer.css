@@ -1,0 +1,67 @@
+.visualizer-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.visualizer-controls {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.relationship-chain {
+  min-height: 280px;
+}
+
+.join-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.join-table-card {
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.join-row {
+  padding: 0.65rem;
+  margin-bottom: 0.5rem;
+  border-radius: calc(var(--radius) - 8px);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-soft) 72%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.animation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.chain-node {
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.chain-arrow {
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  font-weight: 900;
+  font-size: 1.6rem;
+}
+
+@media (max-width: 1100px) {
+  .visualizer-layout,
+  .join-stage {
+    grid-template-columns: 1fr;
+  }
+}
