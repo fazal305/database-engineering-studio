@@ -10,7 +10,7 @@
   --warning: #facc15;
   --danger: #fb7185;
   --radius: 18px;
-  --font-family: Inter, sans-serif;
+  --font-family: "Albert Sans", sans-serif;
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   --border: color-mix(in srgb, var(--text) 12%, transparent);
   --primary-soft: color-mix(in srgb, var(--primary) 14%, transparent);
