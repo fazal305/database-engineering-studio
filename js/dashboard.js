@@ -1,7 +1,7 @@
 function renderDashboardHero() {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    return `
+  return `
     <section class="card-panel hero-panel">
       <div class="row g-4 align-items-center">
         <div class="col-lg-7">
@@ -24,20 +24,20 @@ function renderDashboardHero() {
 }
 
 function renderModuleCards() {
-    const cards = modulesConfig
-        .filter((module) => module.id !== "dashboard")
-        .map(
-            (module) => `
+  const cards = modulesConfig
+    .filter((module) => module.id !== "dashboard")
+    .map(
+      (module) => `
       <a href="${module.page}" class="module-card" data-transition-link>
         <span class="card-kicker">${escapeHtml(module.icon)}</span>
         <h3 class="card-title">${escapeHtml(module.title)}</h3>
         <p class="card-text">${escapeHtml(module.description)}</p>
       </a>
-    `
-        )
-        .join("");
+    `,
+    )
+    .join("");
 
-    return `
+  return `
     <section class="dashboard-section">
       <div class="page-header">
         <div>
@@ -54,41 +54,44 @@ function renderModuleCards() {
 }
 
 function renderDashboardStats() {
-    const workspace = loadWorkspace();
-    const tables = workspace.database.tables;
-    const totalRows = tables.reduce((sum, table) => sum + table.rows.length, 0);
+  const workspace = loadWorkspace();
+  const tables = workspace.database.tables;
+  const totalRows = tables.reduce((sum, table) => sum + table.rows.length, 0);
 
-    const stats = [
-        { label: "Tables", value: tables.length },
-        { label: "Relationships", value: workspace.database.relationships.length },
-        { label: "Rows", value: totalRows },
-        { label: "Saved Queries", value: workspace.savedQueries.length },
-        { label: "Normalization Projects", value: workspace.normalizationProjects.length }
-    ];
+  const stats = [
+    { label: "Tables", value: tables.length },
+    { label: "Relationships", value: workspace.database.relationships.length },
+    { label: "Rows", value: totalRows },
+    { label: "Saved Queries", value: workspace.savedQueries.length },
+    {
+      label: "Normalization Projects",
+      value: workspace.normalizationProjects.length,
+    },
+  ];
 
-    return `
+  return `
     <section class="dashboard-section">
       <div class="grid-auto">
         ${stats
-            .map(
-                (stat) => `
+          .map(
+            (stat) => `
             <article class="stat-card">
               <span class="card-kicker">${escapeHtml(stat.label)}</span>
               <p class="stat-number">${escapeHtml(stat.value)}</p>
             </article>
-          `
-            )
-            .join("")}
+          `,
+          )
+          .join("")}
       </div>
     </section>
   `;
 }
 
 function renderRecentActivity() {
-    const workspace = loadWorkspace();
-    const recent = workspace.activityLog.slice(0, 8);
+  const workspace = loadWorkspace();
+  const recent = workspace.activityLog.slice(0, 8);
 
-    return `
+  return `
     <section class="dashboard-section card-panel panel-padding">
       <div class="page-header">
         <div>
@@ -98,10 +101,11 @@ function renderRecentActivity() {
       </div>
 
       <div class="activity-list">
-        ${recent.length
+        ${
+          recent.length
             ? recent
                 .map(
-                    (log) => `
+                  (log) => `
                   <div class="activity-item">
                     <div>
                       <strong>${escapeHtml(log.action)}</strong>
@@ -112,7 +116,7 @@ function renderRecentActivity() {
                       <div>${escapeHtml(formatTimestamp(log.createdAt))}</div>
                     </div>
                   </div>
-                `
+                `,
                 )
                 .join("")
             : renderEmptyState("No activity yet.")
@@ -123,50 +127,50 @@ function renderRecentActivity() {
 }
 
 function renderQuickActions() {
-    const actions = [
-        {
-            title: "New Schema",
-            text: "Create or import tables, columns, keys, and relationships.",
-            page: "schema-designer.html"
-        },
-        {
-            title: "SQL Playground",
-            text: "Run SELECT, INSERT, UPDATE, and DELETE statements locally.",
-            page: "sql-playground.html"
-        },
-        {
-            title: "Build a Query",
-            text: "Use visual controls to generate runnable SQL.",
-            page: "query-builder.html"
-        },
-        {
-            title: "Normalize a Table",
-            text: "Transform messy data through 1NF, 2NF, and 3NF.",
-            page: "normalization-studio.html"
-        }
-    ];
+  const actions = [
+    {
+      title: "New Schema",
+      text: "Create or import tables, columns, keys, and relationships.",
+      page: "schema-designer.html",
+    },
+    {
+      title: "SQL Playground",
+      text: "Run SELECT, INSERT, UPDATE, and DELETE statements locally.",
+      page: "sql-playground.html",
+    },
+    {
+      title: "Build a Query",
+      text: "Use visual controls to generate runnable SQL.",
+      page: "query-builder.html",
+    },
+    {
+      title: "Normalize a Table",
+      text: "Transform messy data through 1NF, 2NF, and 3NF.",
+      page: "normalization-studio.html",
+    },
+  ];
 
-    return `
+  return `
     <section class="dashboard-section">
       <div class="grid-auto">
         ${actions
-            .map(
-                (action) => `
+          .map(
+            (action) => `
             <a href="${action.page}" class="action-card" data-transition-link>
               <span class="card-kicker">Quick Action</span>
               <h3 class="card-title">${escapeHtml(action.title)}</h3>
               <p class="card-text">${escapeHtml(action.text)}</p>
             </a>
-          `
-            )
-            .join("")}
+          `,
+          )
+          .join("")}
       </div>
     </section>
   `;
 }
 
 function renderDashboard() {
-    const content = `
+  const content = `
     ${renderDashboardHero()}
     ${renderDashboardStats()}
     ${renderModuleCards()}
@@ -174,8 +178,8 @@ function renderDashboard() {
     ${renderRecentActivity()}
   `;
 
-    $("#app").html(renderShell("dashboard", content));
-    setActiveNav();
+  $("#app").html(renderShell("dashboard", content));
+  setActiveNav();
 }
 
 $(document).ready(renderDashboard);

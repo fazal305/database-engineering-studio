@@ -1,43 +1,43 @@
 const themePresets = [
-    {
-        id: "midnight",
-        name: "Midnight Cyan",
-        theme: defaultWorkspace.theme
+  {
+    id: "midnight",
+    name: "Midnight Cyan",
+    theme: defaultWorkspace.theme,
+  },
+  {
+    id: "emerald",
+    name: "Emerald Terminal",
+    theme: {
+      ...defaultWorkspace.theme,
+      bg: "#03140c",
+      bgSoft: "#062416",
+      card: "rgba(7, 34, 21, 0.9)",
+      primary: "#34d399",
+      secondary: "#22c55e",
+      success: "#86efac",
+      warning: "#fde047",
+      danger: "#fb7185",
     },
-    {
-        id: "emerald",
-        name: "Emerald Terminal",
-        theme: {
-            ...defaultWorkspace.theme,
-            bg: "#03140c",
-            bgSoft: "#062416",
-            card: "rgba(7, 34, 21, 0.9)",
-            primary: "#34d399",
-            secondary: "#22c55e",
-            success: "#86efac",
-            warning: "#fde047",
-            danger: "#fb7185"
-        }
+  },
+  {
+    id: "violet",
+    name: "Violet Studio",
+    theme: {
+      ...defaultWorkspace.theme,
+      bg: "#10051f",
+      bgSoft: "#190b33",
+      card: "rgba(28, 14, 54, 0.9)",
+      primary: "#c084fc",
+      secondary: "#38bdf8",
+      success: "#4ade80",
+      warning: "#facc15",
+      danger: "#fb7185",
     },
-    {
-        id: "violet",
-        name: "Violet Studio",
-        theme: {
-            ...defaultWorkspace.theme,
-            bg: "#10051f",
-            bgSoft: "#190b33",
-            card: "rgba(28, 14, 54, 0.9)",
-            primary: "#c084fc",
-            secondary: "#38bdf8",
-            success: "#4ade80",
-            warning: "#facc15",
-            danger: "#fb7185"
-        }
-    }
+  },
 ];
 
 function renderSettingsPage() {
-    const content = `
+  const content = `
     <header class="page-header">
       <div>
         <span class="eyebrow">Settings</span>
@@ -74,18 +74,18 @@ function renderSettingsPage() {
     </div>
   `;
 
-    $("#app").html(renderShell("settings", content));
-    renderSettingsForm();
-    renderThemeCustomizer();
-    renderWorkspaceSettings();
-    bindSettingsEvents();
-    setActiveNav();
+  $("#app").html(renderShell("settings", content));
+  renderSettingsForm();
+  renderThemeCustomizer();
+  renderWorkspaceSettings();
+  bindSettingsEvents();
+  setActiveNav();
 }
 
 function renderSettingsForm() {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    $("#brandSettings").html(`
+  $("#brandSettings").html(`
     <div class="row g-3">
       <div class="col-md-6">
         <label class="form-label">App Name</label>
@@ -103,38 +103,40 @@ function renderSettingsForm() {
 }
 
 function saveBrandSettings() {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    workspace.brand.name = $("#brandNameInput").val().trim() || defaultWorkspace.brand.name;
-    workspace.brand.tagline = $("#brandTaglineInput").val().trim() || defaultWorkspace.brand.tagline;
+  workspace.brand.name =
+    $("#brandNameInput").val().trim() || defaultWorkspace.brand.name;
+  workspace.brand.tagline =
+    $("#brandTaglineInput").val().trim() || defaultWorkspace.brand.tagline;
 
-    saveWorkspace(workspace);
-    showStatus("Brand settings saved.", "success");
-    renderSettingsPage();
+  saveWorkspace(workspace);
+  showStatus("Brand settings saved.", "success");
+  renderSettingsPage();
 }
 
 function renderThemeCustomizer() {
-    const workspace = loadWorkspace();
-    const theme = workspace.theme;
+  const workspace = loadWorkspace();
+  const theme = workspace.theme;
 
-    const colorTokens = [
-        ["bg", "Background"],
-        ["bgSoft", "Soft Background"],
-        ["text", "Text"],
-        ["muted", "Muted Text"],
-        ["primary", "Primary"],
-        ["secondary", "Secondary"],
-        ["success", "Success"],
-        ["warning", "Warning"],
-        ["danger", "Danger"]
-    ];
+  const colorTokens = [
+    ["bg", "Background"],
+    ["bgSoft", "Soft Background"],
+    ["text", "Text"],
+    ["muted", "Muted Text"],
+    ["primary", "Primary"],
+    ["secondary", "Secondary"],
+    ["success", "Success"],
+    ["warning", "Warning"],
+    ["danger", "Danger"],
+  ];
 
-    $("#themeCustomizer").html(`
+  $("#themeCustomizer").html(`
     <h3 class="card-title mt-3">Theme Presets</h3>
     <div class="preset-grid mb-4">
       ${themePresets
-            .map(
-                (preset) => `
+        .map(
+          (preset) => `
           <button class="preset-card text-start" data-preset-id="${preset.id}">
             <strong>${escapeHtml(preset.name)}</strong>
             <div class="preset-swatches">
@@ -143,9 +145,9 @@ function renderThemeCustomizer() {
               <span class="preset-swatch" style="background:${preset.theme.bgSoft}"></span>
             </div>
           </button>
-        `
-            )
-            .join("")}
+        `,
+        )
+        .join("")}
     </div>
 
     <h3 class="card-title">Live Preview</h3>
@@ -159,15 +161,15 @@ function renderThemeCustomizer() {
 
     <div class="theme-grid">
       ${colorTokens
-            .map(
-                ([key, label]) => `
+        .map(
+          ([key, label]) => `
           <div class="color-control">
             <label class="form-label mb-0">${escapeHtml(label)}</label>
             <input type="color" class="theme-token-input" data-token="${key}" value="${escapeHtml(theme[key])}">
           </div>
-        `
-            )
-            .join("")}
+        `,
+        )
+        .join("")}
 
       <div>
         <label class="form-label">Card Background</label>
@@ -182,12 +184,13 @@ function renderThemeCustomizer() {
             "Arial, sans-serif",
             "Verdana, sans-serif",
             "Georgia, serif",
-            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-        ]
+            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+          ]
             .map(
-                (font) =>
-                    `<option value="${font}" ${theme.fontFamily === font ? "selected" : ""
-                    }>${escapeHtml(font)}</option>`
+              (font) =>
+                `<option value="${font}" ${
+                  theme.fontFamily === font ? "selected" : ""
+                }>${escapeHtml(font)}</option>`,
             )
             .join("")}
         </select>
@@ -206,70 +209,70 @@ function renderThemeCustomizer() {
 }
 
 function updateThemeToken(name, value) {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    workspace.theme[name] = name === "radius" ? Number(value) : value;
-    saveWorkspace(workspace);
-    applyThemeSettings(workspace);
+  workspace.theme[name] = name === "radius" ? Number(value) : value;
+  saveWorkspace(workspace);
+  applyThemeSettings(workspace);
 
-    if (name === "radius") {
-        $("#radiusValue").text(value);
-    }
+  if (name === "radius") {
+    $("#radiusValue").text(value);
+  }
 }
 
 function applyThemePreset(presetId) {
-    const preset = themePresets.find((item) => item.id === presetId);
+  const preset = themePresets.find((item) => item.id === presetId);
 
-    if (!preset) return;
+  if (!preset) return;
 
-    const workspace = loadWorkspace();
-    workspace.theme = cloneData(preset.theme);
+  const workspace = loadWorkspace();
+  workspace.theme = cloneData(preset.theme);
 
-    saveWorkspace(workspace);
-    applyThemeSettings(workspace);
-    renderThemeCustomizer();
-    showStatus("Theme preset applied.", "success");
+  saveWorkspace(workspace);
+  applyThemeSettings(workspace);
+  renderThemeCustomizer();
+  showStatus("Theme preset applied.", "success");
 }
 
 function resetThemeToDefault() {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    workspace.theme = cloneData(defaultWorkspace.theme);
-    saveWorkspace(workspace);
-    applyThemeSettings(workspace);
-    renderThemeCustomizer();
-    showStatus("Theme reset.", "success");
+  workspace.theme = cloneData(defaultWorkspace.theme);
+  saveWorkspace(workspace);
+  applyThemeSettings(workspace);
+  renderThemeCustomizer();
+  showStatus("Theme reset.", "success");
 }
 
 function setTransitionSpeed(ms) {
-    const workspace = loadWorkspace();
-    workspace.settings.transitionSpeedMs = Number(ms);
-    saveWorkspace(workspace);
+  const workspace = loadWorkspace();
+  workspace.settings.transitionSpeedMs = Number(ms);
+  saveWorkspace(workspace);
 }
 
 function setLoaderDelay(ms) {
-    const workspace = loadWorkspace();
-    workspace.settings.loaderDelayMs = Number(ms);
-    saveWorkspace(workspace);
+  const workspace = loadWorkspace();
+  workspace.settings.loaderDelayMs = Number(ms);
+  saveWorkspace(workspace);
 }
 
 function setDefaultPageSize(size) {
-    const workspace = loadWorkspace();
-    workspace.settings.defaultPageSize = Number(size);
-    saveWorkspace(workspace);
+  const workspace = loadWorkspace();
+  workspace.settings.defaultPageSize = Number(size);
+  saveWorkspace(workspace);
 }
 
 function toggleCompactSidebar() {
-    const workspace = loadWorkspace();
-    workspace.settings.compactSidebar = $("#compactSidebarInput").is(":checked");
-    saveWorkspace(workspace);
-    showStatus("Sidebar preference saved.", "success");
+  const workspace = loadWorkspace();
+  workspace.settings.compactSidebar = $("#compactSidebarInput").is(":checked");
+  saveWorkspace(workspace);
+  showStatus("Sidebar preference saved.", "success");
 }
 
 function renderWorkspaceSettings() {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    $("#workspaceSettings").html(`
+  $("#workspaceSettings").html(`
     <div class="row g-3 mb-4">
       <div class="col-md-4">
         <label class="form-label">Transition Speed (ms)</label>
@@ -288,8 +291,9 @@ function renderWorkspaceSettings() {
 
       <div class="col-12">
         <label class="form-check">
-          <input id="compactSidebarInput" type="checkbox" class="form-check-input" ${workspace.settings.compactSidebar ? "checked" : ""
-        }>
+          <input id="compactSidebarInput" type="checkbox" class="form-check-input" ${
+            workspace.settings.compactSidebar ? "checked" : ""
+          }>
           <span class="form-check-label">Compact sidebar mode</span>
         </label>
       </div>
@@ -308,80 +312,81 @@ function renderWorkspaceSettings() {
 }
 
 function exportWorkspace() {
-    downloadJson("database-engineering-studio-workspace.json", loadWorkspace());
+  downloadJson("database-engineering-studio-workspace.json", loadWorkspace());
 }
 
 function importWorkspace(event) {
-    const file = event.target.files[0];
+  const file = event.target.files[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = function () {
-        try {
-            const data = JSON.parse(reader.result);
-            const workspace = deepMerge(defaultWorkspace, data);
+  reader.onload = function () {
+    try {
+      const data = JSON.parse(reader.result);
+      const workspace = deepMerge(defaultWorkspace, data);
 
-            saveWorkspace(workspace);
-            showStatus("Workspace imported.", "success");
-            renderSettingsPage();
-        } catch (error) {
-            showStatus("Invalid workspace JSON.", "danger");
-        }
-    };
+      saveWorkspace(workspace);
+      showStatus("Workspace imported.", "success");
+      renderSettingsPage();
+    } catch (error) {
+      showStatus("Invalid workspace JSON.", "danger");
+    }
+  };
 
-    reader.readAsText(file);
+  reader.readAsText(file);
 }
 
 function resetDemoWorkspace() {
-    if (!confirm("Reset to demo data? Current workspace data will be replaced.")) return;
+  if (!confirm("Reset to demo data? Current workspace data will be replaced."))
+    return;
 
-    const workspace = seedDemoData();
-    saveWorkspace(workspace);
-    showStatus("Demo data restored.", "success");
-    renderSettingsPage();
+  const workspace = seedDemoData();
+  saveWorkspace(workspace);
+  showStatus("Demo data restored.", "success");
+  renderSettingsPage();
 }
 
 function clearWorkspace() {
-    if (!confirm("Clear all localStorage data for this studio?")) return;
+  if (!confirm("Clear all localStorage data for this studio?")) return;
 
-    localStorage.removeItem(workspaceKey);
-    showStatus("Workspace cleared. Demo data will reload.", "success");
-    renderSettingsPage();
+  localStorage.removeItem(workspaceKey);
+  showStatus("Workspace cleared. Demo data will reload.", "success");
+  renderSettingsPage();
 }
 
 function bindSettingsEvents() {
-    $(document).on("click", "#saveBrandBtn", saveBrandSettings);
+  $(document).on("click", "#saveBrandBtn", saveBrandSettings);
 
-    $(document).on("input change", ".theme-token-input", function () {
-        updateThemeToken($(this).data("token"), $(this).val());
-    });
+  $(document).on("input change", ".theme-token-input", function () {
+    updateThemeToken($(this).data("token"), $(this).val());
+  });
 
-    $(document).on("click", ".preset-card", function () {
-        applyThemePreset($(this).data("preset-id"));
-    });
+  $(document).on("click", ".preset-card", function () {
+    applyThemePreset($(this).data("preset-id"));
+  });
 
-    $(document).on("click", "#resetThemeBtn", resetThemeToDefault);
+  $(document).on("click", "#resetThemeBtn", resetThemeToDefault);
 
-    $(document).on("input", "#transitionSpeedInput", function () {
-        setTransitionSpeed($(this).val());
-    });
+  $(document).on("input", "#transitionSpeedInput", function () {
+    setTransitionSpeed($(this).val());
+  });
 
-    $(document).on("input", "#loaderDelayInput", function () {
-        setLoaderDelay($(this).val());
-    });
+  $(document).on("input", "#loaderDelayInput", function () {
+    setLoaderDelay($(this).val());
+  });
 
-    $(document).on("input", "#pageSizeInput", function () {
-        setDefaultPageSize($(this).val());
-    });
+  $(document).on("input", "#pageSizeInput", function () {
+    setDefaultPageSize($(this).val());
+  });
 
-    $(document).on("change", "#compactSidebarInput", toggleCompactSidebar);
+  $(document).on("change", "#compactSidebarInput", toggleCompactSidebar);
 
-    $(document).on("click", "#exportWorkspaceBtn", exportWorkspace);
-    $(document).on("change", "#importWorkspaceInput", importWorkspace);
-    $(document).on("click", "#resetDemoBtn", resetDemoWorkspace);
-    $(document).on("click", "#clearWorkspaceBtn", clearWorkspace);
+  $(document).on("click", "#exportWorkspaceBtn", exportWorkspace);
+  $(document).on("change", "#importWorkspaceInput", importWorkspace);
+  $(document).on("click", "#resetDemoBtn", resetDemoWorkspace);
+  $(document).on("click", "#clearWorkspaceBtn", clearWorkspace);
 }
 
 $(document).ready(renderSettingsPage);

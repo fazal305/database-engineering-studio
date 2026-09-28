@@ -71,18 +71,22 @@ function createTable(name, position) {
         type: "INTEGER",
         primaryKey: true,
         nullable: false,
-        foreignKey: null
-      }
+        foreignKey: null,
+      },
     ],
     rows: [],
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 
   workspace.database.tables.push(table);
   saveWorkspace(workspace);
   selectedTableId = table.id;
-  addActivityLog("Schema Designer", "Created table", `Created table '${name}'.`);
+  addActivityLog(
+    "Schema Designer",
+    "Created table",
+    `Created table '${name}'.`,
+  );
   renderSchemaCanvas();
   renderTableEditor();
 }
@@ -110,7 +114,7 @@ function addColumn(tableId) {
     type: "TEXT",
     primaryKey: false,
     nullable: true,
-    foreignKey: null
+    foreignKey: null,
   });
 
   table.updatedAt = new Date().toISOString();
@@ -128,10 +132,14 @@ function removeColumn(tableId, columnId) {
 
   const isReferenced = workspace.database.relationships.some(
     (relationship) =>
-      relationship.toTableId === tableId && relationship.toColumn === column.name
+      relationship.toTableId === tableId &&
+      relationship.toColumn === column.name,
   );
 
-  if (isReferenced && !confirm("This column is referenced by a foreign key. Delete anyway?")) {
+  if (
+    isReferenced &&
+    !confirm("This column is referenced by a foreign key. Delete anyway?")
+  ) {
     return;
   }
 
@@ -141,9 +149,13 @@ function removeColumn(tableId, columnId) {
   workspace.database.relationships = workspace.database.relationships.filter(
     (relationship) =>
       !(
-        relationship.fromTableId === tableId && relationship.fromColumn === column.name
+        relationship.fromTableId === tableId &&
+        relationship.fromColumn === column.name
       ) &&
-      !(relationship.toTableId === tableId && relationship.toColumn === column.name)
+      !(
+        relationship.toTableId === tableId &&
+        relationship.toColumn === column.name
+      ),
   );
 
   saveWorkspace(workspace);
@@ -178,7 +190,10 @@ function setForeignKey(tableId, columnId, targetTableId, targetColumnName) {
 
   workspace.database.relationships = workspace.database.relationships.filter(
     (relationship) =>
-      !(relationship.fromTableId === tableId && relationship.fromColumn === column.name)
+      !(
+        relationship.fromTableId === tableId &&
+        relationship.fromColumn === column.name
+      ),
   );
 
   if (!targetTableId || !targetColumnName) {
@@ -188,7 +203,7 @@ function setForeignKey(tableId, columnId, targetTableId, targetColumnName) {
 
     column.foreignKey = {
       tableId: targetTableId,
-      columnName: targetColumnName
+      columnName: targetColumnName,
     };
 
     workspace.database.relationships.push({
@@ -199,7 +214,7 @@ function setForeignKey(tableId, columnId, targetTableId, targetColumnName) {
       toTableId: targetTable.id,
       toColumn: targetColumnName,
       cardinality: "many-to-one",
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     });
   }
 
@@ -216,16 +231,25 @@ function deleteTable(id) {
   if (!table) return;
 
   const isReferenced = workspace.database.relationships.some(
-    (relationship) => relationship.toTableId === id || relationship.fromTableId === id
+    (relationship) =>
+      relationship.toTableId === id || relationship.fromTableId === id,
   );
 
-  if (isReferenced && !confirm("This table has relationships. Delete it and related foreign keys?")) {
+  if (
+    isReferenced &&
+    !confirm(
+      "This table has relationships. Delete it and related foreign keys?",
+    )
+  ) {
     return;
   }
 
-  workspace.database.tables = workspace.database.tables.filter((item) => item.id !== id);
+  workspace.database.tables = workspace.database.tables.filter(
+    (item) => item.id !== id,
+  );
   workspace.database.relationships = workspace.database.relationships.filter(
-    (relationship) => relationship.toTableId !== id && relationship.fromTableId !== id
+    (relationship) =>
+      relationship.toTableId !== id && relationship.fromTableId !== id,
   );
 
   workspace.database.tables.forEach((item) => {
@@ -236,7 +260,11 @@ function deleteTable(id) {
 
   selectedTableId = null;
   saveWorkspace(workspace);
-  addActivityLog("Schema Designer", "Deleted table", `Deleted table '${table.name}'.`);
+  addActivityLog(
+    "Schema Designer",
+    "Deleted table",
+    `Deleted table '${table.name}'.`,
+  );
   renderSchemaCanvas();
   renderTableEditor();
 }
@@ -256,7 +284,11 @@ function importSchemaSql(sqlText) {
 
     workspace.database = imported;
     saveWorkspace(workspace);
-    addActivityLog("Schema Designer", "Imported SQL schema", "Imported CREATE TABLE SQL into schema state.");
+    addActivityLog(
+      "Schema Designer",
+      "Imported SQL schema",
+      "Imported CREATE TABLE SQL into schema state.",
+    );
     selectedTableId = workspace.database.tables[0]?.id || null;
     renderSchemaCanvas();
     renderTableEditor();
@@ -271,7 +303,11 @@ function applySchemaTemplate(templateId) {
 
   if (!template) return;
 
-  if (!confirm(`Apply '${template.name}' template? This replaces the current schema.`)) {
+  if (
+    !confirm(
+      `Apply '${template.name}' template? This replaces the current schema.`,
+    )
+  ) {
     return;
   }
 
@@ -280,7 +316,11 @@ function applySchemaTemplate(templateId) {
 
   workspace.database = next.database;
   saveWorkspace(workspace);
-  addActivityLog("Schema Designer", "Applied template", `Applied '${template.name}' schema template.`);
+  addActivityLog(
+    "Schema Designer",
+    "Applied template",
+    `Applied '${template.name}' schema template.`,
+  );
   selectedTableId = workspace.database.tables[0]?.id || null;
   renderSchemaCanvas();
   renderTableEditor();
@@ -295,9 +335,9 @@ function renderTemplateList() {
           <strong>${escapeHtml(template.name)}</strong>
           <p class="card-text mb-0">${escapeHtml(template.description)}</p>
         </button>
-      `
+      `,
       )
-      .join("")
+      .join(""),
   );
 }
 
@@ -317,8 +357,7 @@ function renderTableEditor() {
   const tableOptions = workspace.database.tables
     .filter((item) => item.id !== table.id)
     .map(
-      (item) =>
-        `<option value="${item.id}">${escapeHtml(item.name)}</option>`
+      (item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`,
     )
     .join("");
 
@@ -356,7 +395,7 @@ function renderTableEditor() {
                         (type) =>
                           `<option value="${type}" ${
                             column.type === type ? "selected" : ""
-                          }>${type}</option>`
+                          }>${type}</option>`,
                       )
                       .join("")}
                   </select>
@@ -367,7 +406,7 @@ function renderTableEditor() {
                     <option value="">None</option>
                     ${tableOptions.replace(
                       `value="${fkTable}"`,
-                      `value="${fkTable}" selected`
+                      `value="${fkTable}" selected`,
                     )}
                   </select>
                 </div>
@@ -382,7 +421,7 @@ function renderTableEditor() {
                             column.foreignKey?.columnName === targetColumn.name
                               ? "selected"
                               : ""
-                          }>${escapeHtml(targetColumn.name)}</option>`
+                          }>${escapeHtml(targetColumn.name)}</option>`,
                       )
                       .join("")}
                   </select>
@@ -445,7 +484,7 @@ function enableDragging() {
       const node = $(`[data-table-id="${draggingId}"]`);
       moveTable(draggingId, {
         x: parseInt(node.css("left"), 10),
-        y: parseInt(node.css("top"), 10)
+        y: parseInt(node.css("top"), 10),
       });
 
       draggingId = null;
@@ -460,7 +499,10 @@ function enableDragging() {
 
 function bindSchemaEvents() {
   $(document).on("click", "#addTableBtn", function () {
-    const name = prompt("Table name?", `table_${Date.now().toString().slice(-4)}`);
+    const name = prompt(
+      "Table name?",
+      `table_${Date.now().toString().slice(-4)}`,
+    );
     if (!name) return;
 
     createTable(name.trim(), { x: 90, y: 90 });
@@ -505,12 +547,22 @@ function bindSchemaEvents() {
 
   $(document).on("input change", ".column-field", function () {
     const columnId = $(this).closest(".column-editor-row").data("column-id");
-    updateColumn(selectedTableId, columnId, $(this).data("field"), $(this).val());
+    updateColumn(
+      selectedTableId,
+      columnId,
+      $(this).data("field"),
+      $(this).val(),
+    );
   });
 
   $(document).on("change", ".column-check", function () {
     const columnId = $(this).closest(".column-editor-row").data("column-id");
-    updateColumn(selectedTableId, columnId, $(this).data("field"), $(this).is(":checked"));
+    updateColumn(
+      selectedTableId,
+      columnId,
+      $(this).data("field"),
+      $(this).is(":checked"),
+    );
   });
 
   $(document).on("click", ".remove-column-btn", function () {

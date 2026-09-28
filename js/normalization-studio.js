@@ -1,16 +1,16 @@
 let normalizationState = {
-    rawRows: [],
-    functionalDependencies: [],
-    steps: {
-        firstNormalForm: { tables: [] },
-        secondNormalForm: { tables: [] },
-        thirdNormalForm: { tables: [] }
-    },
-    activeStep: "raw"
+  rawRows: [],
+  functionalDependencies: [],
+  steps: {
+    firstNormalForm: { tables: [] },
+    secondNormalForm: { tables: [] },
+    thirdNormalForm: { tables: [] },
+  },
+  activeStep: "raw",
 };
 
 function renderNormalizationStudio() {
-    const content = `
+  const content = `
     <header class="page-header">
       <div>
         <span class="eyebrow">Normalization Studio</span>
@@ -79,121 +79,136 @@ function renderNormalizationStudio() {
     </div>
   `;
 
-    $("#app").html(renderShell("normalization-studio", content));
-    renderSampleMessyTables();
-    renderFunctionalDependencies();
-    renderStepTimeline();
-    renderNormalizationStep("raw", [{ name: "raw_messy_table", rows: normalizationState.rawRows }]);
-    bindNormalizationEvents();
-    setActiveNav();
+  $("#app").html(renderShell("normalization-studio", content));
+  renderSampleMessyTables();
+  renderFunctionalDependencies();
+  renderStepTimeline();
+  renderNormalizationStep("raw", [
+    { name: "raw_messy_table", rows: normalizationState.rawRows },
+  ]);
+  bindNormalizationEvents();
+  setActiveNav();
 }
 
 function loadMessyTable(rawJson) {
-    try {
-        const rows = JSON.parse(rawJson);
+  try {
+    const rows = JSON.parse(rawJson);
 
-        if (!Array.isArray(rows)) {
-            throw new Error("Messy table must be a JSON array of row objects.");
-        }
-
-        normalizationState.rawRows = rows;
-        normalizationState.steps = {
-            firstNormalForm: { tables: [] },
-            secondNormalForm: { tables: [] },
-            thirdNormalForm: { tables: [] }
-        };
-        normalizationState.activeStep = "raw";
-
-        renderStepTimeline();
-        renderNormalizationStep("raw", [{ name: "raw_messy_table", rows }]);
-        showStatus("Messy table loaded.", "success");
-    } catch (error) {
-        showStatus(error.message, "danger");
+    if (!Array.isArray(rows)) {
+      throw new Error("Messy table must be a JSON array of row objects.");
     }
+
+    normalizationState.rawRows = rows;
+    normalizationState.steps = {
+      firstNormalForm: { tables: [] },
+      secondNormalForm: { tables: [] },
+      thirdNormalForm: { tables: [] },
+    };
+    normalizationState.activeStep = "raw";
+
+    renderStepTimeline();
+    renderNormalizationStep("raw", [{ name: "raw_messy_table", rows }]);
+    showStatus("Messy table loaded.", "success");
+  } catch (error) {
+    showStatus(error.message, "danger");
+  }
 }
 
 function addFunctionalDependency(determinant, dependent) {
-    if (!determinant.length || !dependent.length) {
-        showStatus("Add determinant and dependent columns first.", "warning");
-        return;
-    }
+  if (!determinant.length || !dependent.length) {
+    showStatus("Add determinant and dependent columns first.", "warning");
+    return;
+  }
 
-    normalizationState.functionalDependencies.push({
-        id: generateId("fd"),
-        determinant,
-        dependent
-    });
+  normalizationState.functionalDependencies.push({
+    id: generateId("fd"),
+    determinant,
+    dependent,
+  });
 
-    renderFunctionalDependencies();
-    showStatus("Functional dependency added.", "success");
+  renderFunctionalDependencies();
+  showStatus("Functional dependency added.", "success");
 }
 
 function removeFunctionalDependency(id) {
-    normalizationState.functionalDependencies =
-        normalizationState.functionalDependencies.filter((dependency) => dependency.id !== id);
+  normalizationState.functionalDependencies =
+    normalizationState.functionalDependencies.filter(
+      (dependency) => dependency.id !== id,
+    );
 
-    renderFunctionalDependencies();
+  renderFunctionalDependencies();
 }
 
 function runFirstNormalForm() {
-    if (!normalizationState.rawRows.length) {
-        showStatus("Load a messy table first.", "warning");
-        return;
-    }
+  if (!normalizationState.rawRows.length) {
+    showStatus("Load a messy table first.", "warning");
+    return;
+  }
 
-    normalizationState.steps.firstNormalForm.tables =
-        flattenToFirstNormalForm(normalizationState.rawRows);
+  normalizationState.steps.firstNormalForm.tables = flattenToFirstNormalForm(
+    normalizationState.rawRows,
+  );
 
-    normalizationState.activeStep = "firstNormalForm";
-    renderStepTimeline();
-    renderNormalizationStep("1NF", normalizationState.steps.firstNormalForm.tables);
+  normalizationState.activeStep = "firstNormalForm";
+  renderStepTimeline();
+  renderNormalizationStep(
+    "1NF",
+    normalizationState.steps.firstNormalForm.tables,
+  );
 }
 
 function runSecondNormalForm() {
-    if (!normalizationState.steps.firstNormalForm.tables.length) {
-        runFirstNormalForm();
-    }
+  if (!normalizationState.steps.firstNormalForm.tables.length) {
+    runFirstNormalForm();
+  }
 
-    const firstTable = normalizationState.steps.firstNormalForm.tables[0];
+  const firstTable = normalizationState.steps.firstNormalForm.tables[0];
 
-    normalizationState.steps.secondNormalForm.tables = decomposeToSecondNormalForm(
-        firstTable,
-        normalizationState.functionalDependencies
+  normalizationState.steps.secondNormalForm.tables =
+    decomposeToSecondNormalForm(
+      firstTable,
+      normalizationState.functionalDependencies,
     );
 
-    normalizationState.activeStep = "secondNormalForm";
-    renderStepTimeline();
-    renderNormalizationStep("2NF", normalizationState.steps.secondNormalForm.tables);
+  normalizationState.activeStep = "secondNormalForm";
+  renderStepTimeline();
+  renderNormalizationStep(
+    "2NF",
+    normalizationState.steps.secondNormalForm.tables,
+  );
 }
 
 function runThirdNormalForm() {
-    if (!normalizationState.steps.secondNormalForm.tables.length) {
-        runSecondNormalForm();
-    }
+  if (!normalizationState.steps.secondNormalForm.tables.length) {
+    runSecondNormalForm();
+  }
 
-    normalizationState.steps.thirdNormalForm.tables = decomposeToThirdNormalForm(
-        normalizationState.steps.secondNormalForm.tables,
-        normalizationState.functionalDependencies
-    );
+  normalizationState.steps.thirdNormalForm.tables = decomposeToThirdNormalForm(
+    normalizationState.steps.secondNormalForm.tables,
+    normalizationState.functionalDependencies,
+  );
 
-    normalizationState.activeStep = "thirdNormalForm";
-    renderStepTimeline();
-    renderNormalizationStep("3NF", normalizationState.steps.thirdNormalForm.tables);
+  normalizationState.activeStep = "thirdNormalForm";
+  renderStepTimeline();
+  renderNormalizationStep(
+    "3NF",
+    normalizationState.steps.thirdNormalForm.tables,
+  );
 }
 
 function renderNormalizationStep(stepName, tables) {
-    $("#normalizationOutput").html(
-        tables?.length
-            ? tables.map(renderNormTable).join("")
-            : renderEmptyState("No normalization output yet.")
-    );
+  $("#normalizationOutput").html(
+    tables?.length
+      ? tables.map(renderNormTable).join("")
+      : renderEmptyState("No normalization output yet."),
+  );
 }
 
 function renderNormTable(table) {
-    const rows = table.rows || [];
-    const columns = Object.keys(rows[0] || {});
+  const rows = table.rows || [];
+  const columns = Object.keys(rows[0] || {});
 
-    return `
+  return `
     <div class="norm-table-card mb-3">
       <div class="d-flex justify-content-between gap-2 align-items-start mb-2">
         <div>
@@ -204,8 +219,9 @@ function renderNormTable(table) {
 
       ${table.explanation ? `<p class="card-text">${escapeHtml(table.explanation)}</p>` : ""}
 
-      ${rows.length
-            ? `
+      ${
+        rows.length
+          ? `
           <div class="table-wrap">
             <table class="app-table">
               <thead>
@@ -213,190 +229,208 @@ function renderNormTable(table) {
               </thead>
               <tbody>
                 ${rows
-                .map(
+                  .map(
                     (row) => `
                     <tr>
                       ${columns.map((column) => `<td>${escapeHtml(row[column])}</td>`).join("")}
                     </tr>
-                  `
-                )
-                .join("")}
+                  `,
+                  )
+                  .join("")}
               </tbody>
             </table>
           </div>
         `
-            : renderEmptyState("This table has no rows.")
-        }
+          : renderEmptyState("This table has no rows.")
+      }
     </div>
   `;
 }
 
 function renderStepTimeline() {
-    const steps = [
-        { id: "raw", label: "Raw" },
-        { id: "firstNormalForm", label: "1NF" },
-        { id: "secondNormalForm", label: "2NF" },
-        { id: "thirdNormalForm", label: "3NF" }
-    ];
+  const steps = [
+    { id: "raw", label: "Raw" },
+    { id: "firstNormalForm", label: "1NF" },
+    { id: "secondNormalForm", label: "2NF" },
+    { id: "thirdNormalForm", label: "3NF" },
+  ];
 
-    $("#stepTimeline").html(`
+  $("#stepTimeline").html(`
     <div class="timeline-pills">
       ${steps
-            .map(
-                (step) => `
-          <button class="timeline-pill ${normalizationState.activeStep === step.id ? "active" : ""
-                    }" data-step-id="${step.id}">
+        .map(
+          (step) => `
+          <button class="timeline-pill ${
+            normalizationState.activeStep === step.id ? "active" : ""
+          }" data-step-id="${step.id}">
             ${escapeHtml(step.label)}
           </button>
-        `
-            )
-            .join("")}
+        `,
+        )
+        .join("")}
     </div>
   `);
 }
 
 function applySampleMessyTable(sampleId) {
-    const sample = normalizationSamples.find((item) => item.id === sampleId);
+  const sample = normalizationSamples.find((item) => item.id === sampleId);
 
-    if (!sample) return;
+  if (!sample) return;
 
-    normalizationState.rawRows = cloneData(sample.rawRows);
-    normalizationState.functionalDependencies = cloneData(sample.functionalDependencies);
-    normalizationState.steps = {
-        firstNormalForm: { tables: [] },
-        secondNormalForm: { tables: [] },
-        thirdNormalForm: { tables: [] }
-    };
-    normalizationState.activeStep = "raw";
+  normalizationState.rawRows = cloneData(sample.rawRows);
+  normalizationState.functionalDependencies = cloneData(
+    sample.functionalDependencies,
+  );
+  normalizationState.steps = {
+    firstNormalForm: { tables: [] },
+    secondNormalForm: { tables: [] },
+    thirdNormalForm: { tables: [] },
+  };
+  normalizationState.activeStep = "raw";
 
-    $("#messyJsonInput").val(JSON.stringify(sample.rawRows, null, 2));
-    renderFunctionalDependencies();
-    renderStepTimeline();
-    renderNormalizationStep("raw", [{ name: sample.name, rows: sample.rawRows }]);
-    showStatus("Sample messy table loaded.", "success");
+  $("#messyJsonInput").val(JSON.stringify(sample.rawRows, null, 2));
+  renderFunctionalDependencies();
+  renderStepTimeline();
+  renderNormalizationStep("raw", [{ name: sample.name, rows: sample.rawRows }]);
+  showStatus("Sample messy table loaded.", "success");
 }
 
 function saveNormalizationProject(name) {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    if (!normalizationState.rawRows.length) {
-        showStatus("Load a messy table before saving.", "warning");
-        return;
-    }
+  if (!normalizationState.rawRows.length) {
+    showStatus("Load a messy table before saving.", "warning");
+    return;
+  }
 
-    workspace.normalizationProjects.unshift({
-        id: generateId("norm"),
-        name,
-        rawRows: cloneData(normalizationState.rawRows),
-        functionalDependencies: cloneData(normalizationState.functionalDependencies),
-        steps: cloneData(normalizationState.steps),
-        createdAt: new Date().toISOString()
-    });
+  workspace.normalizationProjects.unshift({
+    id: generateId("norm"),
+    name,
+    rawRows: cloneData(normalizationState.rawRows),
+    functionalDependencies: cloneData(
+      normalizationState.functionalDependencies,
+    ),
+    steps: cloneData(normalizationState.steps),
+    createdAt: new Date().toISOString(),
+  });
 
-    saveWorkspace(workspace);
-    addActivityLog("Normalization Studio", "Saved project", `Saved normalization project '${name}'.`);
-    showStatus("Normalization project saved.", "success");
+  saveWorkspace(workspace);
+  addActivityLog(
+    "Normalization Studio",
+    "Saved project",
+    `Saved normalization project '${name}'.`,
+  );
+  showStatus("Normalization project saved.", "success");
 }
 
 function renderSampleMessyTables() {
-    $("#sampleMessyTables").html(
-        normalizationSamples
-            .map(
-                (sample) => `
+  $("#sampleMessyTables").html(
+    normalizationSamples
+      .map(
+        (sample) => `
         <button class="sample-table-card text-start" data-sample-id="${sample.id}">
           <strong>${escapeHtml(sample.name)}</strong>
           <p class="card-text mb-0">${escapeHtml(sample.description)}</p>
         </button>
-      `
-            )
-            .join("")
-    );
+      `,
+      )
+      .join(""),
+  );
 }
 
 function renderFunctionalDependencies() {
-    $("#fdList").html(
-        normalizationState.functionalDependencies.length
-            ? normalizationState.functionalDependencies
-                .map(
-                    (dependency) => `
+  $("#fdList").html(
+    normalizationState.functionalDependencies.length
+      ? normalizationState.functionalDependencies
+          .map(
+            (dependency) => `
             <div class="fd-item">
               <strong>${escapeHtml(dependency.determinant.join(", "))}</strong>
               <span class="card-text"> determines </span>
               <strong>${escapeHtml(dependency.dependent.join(", "))}</strong>
               <button class="btn-ghost remove-fd-btn mt-2" data-fd-id="${dependency.id}">Remove</button>
             </div>
-          `
-                )
-                .join("")
-            : renderEmptyState("No functional dependencies added.")
-    );
+          `,
+          )
+          .join("")
+      : renderEmptyState("No functional dependencies added."),
+  );
 }
 
 function bindNormalizationEvents() {
-    $(document).on("click", "#loadMessyTableBtn", function () {
-        loadMessyTable($("#messyJsonInput").val().trim());
-    });
+  $(document).on("click", "#loadMessyTableBtn", function () {
+    loadMessyTable($("#messyJsonInput").val().trim());
+  });
 
-    $(document).on("click", ".sample-table-card", function () {
-        applySampleMessyTable($(this).data("sample-id"));
-    });
+  $(document).on("click", ".sample-table-card", function () {
+    applySampleMessyTable($(this).data("sample-id"));
+  });
 
-    $(document).on("click", "#addFdBtn", function () {
-        const determinant = $("#fdDeterminantInput")
-            .val()
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean);
+  $(document).on("click", "#addFdBtn", function () {
+    const determinant = $("#fdDeterminantInput")
+      .val()
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
-        const dependent = $("#fdDependentInput")
-            .val()
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean);
+    const dependent = $("#fdDependentInput")
+      .val()
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
-        addFunctionalDependency(determinant, dependent);
-        $("#fdDeterminantInput").val("");
-        $("#fdDependentInput").val("");
-    });
+    addFunctionalDependency(determinant, dependent);
+    $("#fdDeterminantInput").val("");
+    $("#fdDependentInput").val("");
+  });
 
-    $(document).on("click", ".remove-fd-btn", function () {
-        removeFunctionalDependency($(this).data("fd-id"));
-    });
+  $(document).on("click", ".remove-fd-btn", function () {
+    removeFunctionalDependency($(this).data("fd-id"));
+  });
 
-    $(document).on("click", "#run1nfBtn", runFirstNormalForm);
-    $(document).on("click", "#run2nfBtn", runSecondNormalForm);
-    $(document).on("click", "#run3nfBtn", runThirdNormalForm);
+  $(document).on("click", "#run1nfBtn", runFirstNormalForm);
+  $(document).on("click", "#run2nfBtn", runSecondNormalForm);
+  $(document).on("click", "#run3nfBtn", runThirdNormalForm);
 
-    $(document).on("click", "#saveNormProjectBtn", function () {
-        const name = prompt("Project name?", "Normalization Project");
-        if (!name) return;
+  $(document).on("click", "#saveNormProjectBtn", function () {
+    const name = prompt("Project name?", "Normalization Project");
+    if (!name) return;
 
-        saveNormalizationProject(name.trim());
-    });
+    saveNormalizationProject(name.trim());
+  });
 
-    $(document).on("click", ".timeline-pill", function () {
-        const step = $(this).data("step-id");
-        normalizationState.activeStep = step;
-        renderStepTimeline();
+  $(document).on("click", ".timeline-pill", function () {
+    const step = $(this).data("step-id");
+    normalizationState.activeStep = step;
+    renderStepTimeline();
 
-        if (step === "raw") {
-            renderNormalizationStep("raw", [
-                { name: "raw_messy_table", rows: normalizationState.rawRows }
-            ]);
-        }
+    if (step === "raw") {
+      renderNormalizationStep("raw", [
+        { name: "raw_messy_table", rows: normalizationState.rawRows },
+      ]);
+    }
 
-        if (step === "firstNormalForm") {
-            renderNormalizationStep("1NF", normalizationState.steps.firstNormalForm.tables);
-        }
+    if (step === "firstNormalForm") {
+      renderNormalizationStep(
+        "1NF",
+        normalizationState.steps.firstNormalForm.tables,
+      );
+    }
 
-        if (step === "secondNormalForm") {
-            renderNormalizationStep("2NF", normalizationState.steps.secondNormalForm.tables);
-        }
+    if (step === "secondNormalForm") {
+      renderNormalizationStep(
+        "2NF",
+        normalizationState.steps.secondNormalForm.tables,
+      );
+    }
 
-        if (step === "thirdNormalForm") {
-            renderNormalizationStep("3NF", normalizationState.steps.thirdNormalForm.tables);
-        }
-    });
+    if (step === "thirdNormalForm") {
+      renderNormalizationStep(
+        "3NF",
+        normalizationState.steps.thirdNormalForm.tables,
+      );
+    }
+  });
 }
 
 $(document).ready(renderNormalizationStudio);

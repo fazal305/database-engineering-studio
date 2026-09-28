@@ -1,14 +1,14 @@
 let builderConfig = {
-    selectColumns: [],
-    fromTable: "",
-    joins: [],
-    whereConditions: [],
-    groupBy: [],
-    orderBy: []
+  selectColumns: [],
+  fromTable: "",
+  joins: [],
+  whereConditions: [],
+  groupBy: [],
+  orderBy: [],
 };
 
 function renderQueryBuilderPage() {
-    const content = `
+  const content = `
     <header class="page-header">
       <div>
         <span class="eyebrow">Query Builder 2.0</span>
@@ -47,70 +47,72 @@ function renderQueryBuilderPage() {
     </div>
   `;
 
-    $("#app").html(renderShell("query-builder", content));
-    initBuilderConfig();
-    renderQueryBuilderForm();
-    renderGeneratedSql();
-    renderSavedQueries();
-    bindQueryBuilderEvents();
-    setActiveNav();
+  $("#app").html(renderShell("query-builder", content));
+  initBuilderConfig();
+  renderQueryBuilderForm();
+  renderGeneratedSql();
+  renderSavedQueries();
+  bindQueryBuilderEvents();
+  setActiveNav();
 }
 
 function initBuilderConfig() {
-    const workspace = loadWorkspace();
-    const firstTable = workspace.database.tables[0];
+  const workspace = loadWorkspace();
+  const firstTable = workspace.database.tables[0];
 
-    if (!builderConfig.fromTable && firstTable) {
-        builderConfig.fromTable = firstTable.name;
-        builderConfig.selectColumns = firstTable.columns.map(
-            (column) => `${firstTable.name}.${column.name}`
-        );
-    }
+  if (!builderConfig.fromTable && firstTable) {
+    builderConfig.fromTable = firstTable.name;
+    builderConfig.selectColumns = firstTable.columns.map(
+      (column) => `${firstTable.name}.${column.name}`,
+    );
+  }
 }
 
 function getAvailableTables() {
-    return loadWorkspace().database.tables;
+  return loadWorkspace().database.tables;
 }
 
 function getBuilderTables() {
-    const workspace = loadWorkspace();
-    const tables = [];
+  const workspace = loadWorkspace();
+  const tables = [];
 
-    const fromTable = getTableByName(workspace.database, builderConfig.fromTable);
-    if (fromTable) tables.push(fromTable);
+  const fromTable = getTableByName(workspace.database, builderConfig.fromTable);
+  if (fromTable) tables.push(fromTable);
 
-    builderConfig.joins.forEach((join) => {
-        const table = getTableByName(workspace.database, join.table);
-        if (table && !tables.some((item) => item.id === table.id)) tables.push(table);
-    });
+  builderConfig.joins.forEach((join) => {
+    const table = getTableByName(workspace.database, join.table);
+    if (table && !tables.some((item) => item.id === table.id))
+      tables.push(table);
+  });
 
-    return tables;
+  return tables;
 }
 
 function getBuilderColumns() {
-    return getBuilderTables().flatMap((table) =>
-        table.columns.map((column) => `${table.name}.${column.name}`)
-    );
+  return getBuilderTables().flatMap((table) =>
+    table.columns.map((column) => `${table.name}.${column.name}`),
+  );
 }
 
 function renderQueryBuilderForm() {
-    const tables = getAvailableTables();
-    const builderTables = getBuilderTables();
-    const allColumns = getBuilderColumns();
+  const tables = getAvailableTables();
+  const builderTables = getBuilderTables();
+  const allColumns = getBuilderColumns();
 
-    $("#builderForm").html(`
+  $("#builderForm").html(`
     <section class="clause-panel">
       <h2 class="clause-title">FROM</h2>
       <label class="form-label">Base Table</label>
       <select id="fromTableSelect" class="form-select">
         ${tables
-            .map(
-                (table) => `
-            <option value="${table.name}" ${table.name === builderConfig.fromTable ? "selected" : ""
-                    }>${escapeHtml(table.name)}</option>
-          `
-            )
-            .join("")}
+          .map(
+            (table) => `
+            <option value="${table.name}" ${
+              table.name === builderConfig.fromTable ? "selected" : ""
+            }>${escapeHtml(table.name)}</option>
+          `,
+          )
+          .join("")}
       </select>
     </section>
 
@@ -121,16 +123,20 @@ function renderQueryBuilderForm() {
       </div>
 
       <div class="checkbox-grid">
-        ${allColumns.length
+        ${
+          allColumns.length
             ? allColumns
                 .map(
-                    (column) => `
+                  (column) => `
                   <label class="form-check">
-                    <input class="form-check-input select-column-check" type="checkbox" value="${escapeHtml(column)}" ${builderConfig.selectColumns.includes(column) ? "checked" : ""
-                        }>
+                    <input class="form-check-input select-column-check" type="checkbox" value="${escapeHtml(column)}" ${
+                      builderConfig.selectColumns.includes(column)
+                        ? "checked"
+                        : ""
+                    }>
                     <span class="form-check-label">${escapeHtml(column)}</span>
                   </label>
-                `
+                `,
                 )
                 .join("")
             : renderEmptyState("No columns available.")
@@ -145,7 +151,8 @@ function renderQueryBuilderForm() {
       </div>
 
       <div id="joinRows">
-        ${builderConfig.joins.length
+        ${
+          builderConfig.joins.length
             ? builderConfig.joins.map(renderJoinRow).join("")
             : renderEmptyState("No joins added.")
         }
@@ -159,7 +166,8 @@ function renderQueryBuilderForm() {
       </div>
 
       <div id="whereRows">
-        ${builderConfig.whereConditions.length
+        ${
+          builderConfig.whereConditions.length
             ? builderConfig.whereConditions.map(renderWhereRow).join("")
             : renderEmptyState("No filters added.")
         }
@@ -170,16 +178,17 @@ function renderQueryBuilderForm() {
       <h2 class="clause-title">GROUP BY</h2>
       <div class="checkbox-grid">
         ${allColumns
-            .map(
-                (column) => `
+          .map(
+            (column) => `
             <label class="form-check">
-              <input class="form-check-input group-column-check" type="checkbox" value="${escapeHtml(column)}" ${builderConfig.groupBy.includes(column) ? "checked" : ""
-                    }>
+              <input class="form-check-input group-column-check" type="checkbox" value="${escapeHtml(column)}" ${
+                builderConfig.groupBy.includes(column) ? "checked" : ""
+              }>
               <span class="form-check-label">${escapeHtml(column)}</span>
             </label>
-          `
-            )
-            .join("")}
+          `,
+          )
+          .join("")}
       </div>
     </section>
 
@@ -190,19 +199,22 @@ function renderQueryBuilderForm() {
           <option value="">None</option>
           ${allColumns
             .map(
-                (column) => `
-              <option value="${column}" ${builderConfig.orderBy[0]?.field === column ? "selected" : ""
-                    }>${escapeHtml(column)}</option>
-            `
+              (column) => `
+              <option value="${column}" ${
+                builderConfig.orderBy[0]?.field === column ? "selected" : ""
+              }>${escapeHtml(column)}</option>
+            `,
             )
             .join("")}
         </select>
 
         <select id="orderDirectionSelect" class="form-select">
-          <option value="ASC" ${builderConfig.orderBy[0]?.direction === "ASC" ? "selected" : ""
-        }>ASC</option>
-          <option value="DESC" ${builderConfig.orderBy[0]?.direction === "DESC" ? "selected" : ""
-        }>DESC</option>
+          <option value="ASC" ${
+            builderConfig.orderBy[0]?.direction === "ASC" ? "selected" : ""
+          }>ASC</option>
+          <option value="DESC" ${
+            builderConfig.orderBy[0]?.direction === "DESC" ? "selected" : ""
+          }>DESC</option>
         </select>
       </div>
     </section>
@@ -210,10 +222,10 @@ function renderQueryBuilderForm() {
 }
 
 function renderJoinRow(join, index) {
-    const tables = getAvailableTables();
-    const columns = getBuilderColumns();
+  const tables = getAvailableTables();
+  const columns = getBuilderColumns();
 
-    return `
+  return `
     <div class="builder-row join-row" data-index="${index}">
       <select class="form-select join-type">
         <option value="INNER" ${join.type === "INNER" ? "selected" : ""}>INNER</option>
@@ -223,13 +235,14 @@ function renderJoinRow(join, index) {
       <select class="form-select join-table">
         <option value="">Join table</option>
         ${tables
-            .map(
-                (table) => `
-            <option value="${table.name}" ${join.table === table.name ? "selected" : ""
-                    }>${escapeHtml(table.name)}</option>
-          `
-            )
-            .join("")}
+          .map(
+            (table) => `
+            <option value="${table.name}" ${
+              join.table === table.name ? "selected" : ""
+            }>${escapeHtml(table.name)}</option>
+          `,
+          )
+          .join("")}
       </select>
 
       <input class="form-control join-on" placeholder="customers.id = orders.customer_id" value="${escapeHtml(join.on || "")}">
@@ -240,9 +253,9 @@ function renderJoinRow(join, index) {
 }
 
 function renderWhereRow(condition, index) {
-    const columns = getBuilderColumns();
+  const columns = getBuilderColumns();
 
-    return `
+  return `
     <div class="builder-row where-row" data-index="${index}">
       <select class="form-select where-logical">
         <option value="AND" ${condition.logical === "AND" ? "selected" : ""}>AND</option>
@@ -251,24 +264,26 @@ function renderWhereRow(condition, index) {
 
       <select class="form-select where-field">
         ${columns
-            .map(
-                (column) => `
-            <option value="${column}" ${condition.field === column ? "selected" : ""
-                    }>${escapeHtml(column)}</option>
-          `
-            )
-            .join("")}
+          .map(
+            (column) => `
+            <option value="${column}" ${
+              condition.field === column ? "selected" : ""
+            }>${escapeHtml(column)}</option>
+          `,
+          )
+          .join("")}
       </select>
 
       <select class="form-select where-operator">
         ${["=", ">", "<"]
-            .map(
-                (operator) => `
-            <option value="${operator}" ${condition.operator === operator ? "selected" : ""
-                    }>${escapeHtml(operator)}</option>
-          `
-            )
-            .join("")}
+          .map(
+            (operator) => `
+            <option value="${operator}" ${
+              condition.operator === operator ? "selected" : ""
+            }>${escapeHtml(operator)}</option>
+          `,
+          )
+          .join("")}
       </select>
 
       <input class="form-control where-value" placeholder="Value" value="${escapeHtml(condition.value || "")}">
@@ -279,104 +294,104 @@ function renderWhereRow(condition, index) {
 }
 
 function updateBuilderSelectColumns(columns) {
-    builderConfig.selectColumns = columns;
-    renderGeneratedSql();
+  builderConfig.selectColumns = columns;
+  renderGeneratedSql();
 }
 
 function updateBuilderJoins(joins) {
-    builderConfig.joins = joins;
-    renderQueryBuilderForm();
-    renderGeneratedSql();
+  builderConfig.joins = joins;
+  renderQueryBuilderForm();
+  renderGeneratedSql();
 }
 
 function updateBuilderWhereConditions(conditions) {
-    builderConfig.whereConditions = conditions;
-    renderGeneratedSql();
+  builderConfig.whereConditions = conditions;
+  renderGeneratedSql();
 }
 
 function updateBuilderGroupBy(fields) {
-    builderConfig.groupBy = fields;
-    renderGeneratedSql();
+  builderConfig.groupBy = fields;
+  renderGeneratedSql();
 }
 
 function updateBuilderOrderBy(fields) {
-    builderConfig.orderBy = fields;
-    renderGeneratedSql();
+  builderConfig.orderBy = fields;
+  renderGeneratedSql();
 }
 
 function collectJoinRows() {
-    const joins = [];
+  const joins = [];
 
-    $(".join-row").each(function () {
-        joins.push({
-            type: $(this).find(".join-type").val(),
-            table: $(this).find(".join-table").val(),
-            on: $(this).find(".join-on").val().trim()
-        });
+  $(".join-row").each(function () {
+    joins.push({
+      type: $(this).find(".join-type").val(),
+      table: $(this).find(".join-table").val(),
+      on: $(this).find(".join-on").val().trim(),
     });
+  });
 
-    return joins;
+  return joins;
 }
 
 function collectWhereRows() {
-    const conditions = [];
+  const conditions = [];
 
-    $(".where-row").each(function () {
-        conditions.push({
-            logical: $(this).find(".where-logical").val(),
-            field: $(this).find(".where-field").val(),
-            operator: $(this).find(".where-operator").val(),
-            value: $(this).find(".where-value").val()
-        });
+  $(".where-row").each(function () {
+    conditions.push({
+      logical: $(this).find(".where-logical").val(),
+      field: $(this).find(".where-field").val(),
+      operator: $(this).find(".where-operator").val(),
+      value: $(this).find(".where-value").val(),
     });
+  });
 
-    return conditions;
+  return conditions;
 }
 
 function renderGeneratedSql() {
-    const sql = generateSqlFromBuilderConfig(builderConfig);
-    $("#generatedSql").val(sql);
+  const sql = generateSqlFromBuilderConfig(builderConfig);
+  $("#generatedSql").val(sql);
 }
 
 function runBuiltQuery() {
-    const sql = $("#generatedSql").val().trim();
+  const sql = $("#generatedSql").val().trim();
 
-    if (!sql) {
-        showStatus("Build a query first.", "warning");
-        return;
-    }
+  if (!sql) {
+    showStatus("Build a query first.", "warning");
+    return;
+  }
 
-    const workspace = loadWorkspace();
-    const startedAt = performance.now();
+  const workspace = loadWorkspace();
+  const startedAt = performance.now();
 
-    try {
-        const parsed = parseSql(tokenizeSql(sql));
-        const result = executeSql(workspace.database, parsed);
-        const executionMs = Number((performance.now() - startedAt).toFixed(2));
+  try {
+    const parsed = parseSql(tokenizeSql(sql));
+    const result = executeSql(workspace.database, parsed);
+    const executionMs = Number((performance.now() - startedAt).toFixed(2));
 
-        renderBuiltResults({ ...result, executionMs });
-        showStatus(result.message, "success");
-    } catch (error) {
-        $("#builtQueryResults").html(`
+    renderBuiltResults({ ...result, executionMs });
+    showStatus(result.message, "success");
+  } catch (error) {
+    $("#builtQueryResults").html(`
       <div class="status-message status-danger position-static">
         ${escapeHtml(error.message)}
       </div>
     `);
-        showStatus(error.message, "danger");
-    }
+    showStatus(error.message, "danger");
+  }
 }
 
 function renderBuiltResults(result) {
-    const rows = result.rows || [];
+  const rows = result.rows || [];
 
-    if (!rows.length) {
-        $("#builtQueryResults").html(renderEmptyState(result.message));
-        return;
-    }
+  if (!rows.length) {
+    $("#builtQueryResults").html(renderEmptyState(result.message));
+    return;
+  }
 
-    const columns = Object.keys(rows[0]);
+  const columns = Object.keys(rows[0]);
 
-    $("#builtQueryResults").html(`
+  $("#builtQueryResults").html(`
     <div class="result-summary">${escapeHtml(result.message)} Execution time: ${escapeHtml(result.executionMs)}ms.</div>
     <div class="table-wrap">
       <table class="app-table">
@@ -386,11 +401,11 @@ function renderBuiltResults(result) {
         <tbody>
           ${rows
             .map(
-                (row) => `
+              (row) => `
               <tr>
                 ${columns.map((column) => `<td>${escapeHtml(row[column])}</td>`).join("")}
               </tr>
-            `
+            `,
             )
             .join("")}
         </tbody>
@@ -400,181 +415,196 @@ function renderBuiltResults(result) {
 }
 
 function saveBuiltQuery(name) {
-    const workspace = loadWorkspace();
-    const generatedSql = $("#generatedSql").val().trim();
+  const workspace = loadWorkspace();
+  const generatedSql = $("#generatedSql").val().trim();
 
-    if (!generatedSql) {
-        showStatus("Build SQL before saving.", "warning");
-        return;
-    }
+  if (!generatedSql) {
+    showStatus("Build SQL before saving.", "warning");
+    return;
+  }
 
-    workspace.savedQueries.unshift({
-        id: generateId("qb"),
-        name,
-        builderConfig: cloneData(builderConfig),
-        generatedSql,
-        createdAt: new Date().toISOString()
-    });
+  workspace.savedQueries.unshift({
+    id: generateId("qb"),
+    name,
+    builderConfig: cloneData(builderConfig),
+    generatedSql,
+    createdAt: new Date().toISOString(),
+  });
 
-    saveWorkspace(workspace);
-    addActivityLog("Query Builder", "Saved query", `Saved query '${name}'.`);
-    renderSavedQueries();
-    showStatus("Query saved.", "success");
+  saveWorkspace(workspace);
+  addActivityLog("Query Builder", "Saved query", `Saved query '${name}'.`);
+  renderSavedQueries();
+  showStatus("Query saved.", "success");
 }
 
 function copyGeneratedSql() {
-    copyText($("#generatedSql").val(), "Generated SQL copied.");
+  copyText($("#generatedSql").val(), "Generated SQL copied.");
 }
 
 function renderSavedQueries() {
-    const workspace = loadWorkspace();
+  const workspace = loadWorkspace();
 
-    $("#savedQueriesList").html(
-        workspace.savedQueries.length
-            ? workspace.savedQueries
-                .map(
-                    (query) => `
+  $("#savedQueriesList").html(
+    workspace.savedQueries.length
+      ? workspace.savedQueries
+          .map(
+            (query) => `
             <div class="saved-query-card">
               <strong>${escapeHtml(query.name)}</strong>
               <p class="history-query">${escapeHtml(query.generatedSql)}</p>
               <button class="btn-ghost load-saved-query-btn" data-query-id="${query.id}">Load</button>
             </div>
-          `
-                )
-                .join("")
-            : renderEmptyState("No saved queries yet.")
-    );
+          `,
+          )
+          .join("")
+      : renderEmptyState("No saved queries yet."),
+  );
 }
 
 function loadSavedQuery(id) {
-    const workspace = loadWorkspace();
-    const query = workspace.savedQueries.find((item) => item.id === id);
+  const workspace = loadWorkspace();
+  const query = workspace.savedQueries.find((item) => item.id === id);
 
-    if (!query) return;
+  if (!query) return;
 
-    builderConfig = cloneData(query.builderConfig);
-    renderQueryBuilderForm();
-    renderGeneratedSql();
-    showStatus("Saved query loaded.", "success");
+  builderConfig = cloneData(query.builderConfig);
+  renderQueryBuilderForm();
+  renderGeneratedSql();
+  showStatus("Saved query loaded.", "success");
 }
 
 function bindQueryBuilderEvents() {
-    $(document).on("change", "#fromTableSelect", function () {
-        builderConfig.fromTable = $(this).val();
-        builderConfig.joins = [];
-        builderConfig.whereConditions = [];
-        builderConfig.groupBy = [];
-        builderConfig.orderBy = [];
-        builderConfig.selectColumns = [];
+  $(document).on("change", "#fromTableSelect", function () {
+    builderConfig.fromTable = $(this).val();
+    builderConfig.joins = [];
+    builderConfig.whereConditions = [];
+    builderConfig.groupBy = [];
+    builderConfig.orderBy = [];
+    builderConfig.selectColumns = [];
 
-        const table = getTableByName(loadWorkspace().database, builderConfig.fromTable);
-        if (table) {
-            builderConfig.selectColumns = table.columns.map(
-                (column) => `${table.name}.${column.name}`
-            );
-        }
+    const table = getTableByName(
+      loadWorkspace().database,
+      builderConfig.fromTable,
+    );
+    if (table) {
+      builderConfig.selectColumns = table.columns.map(
+        (column) => `${table.name}.${column.name}`,
+      );
+    }
 
-        renderQueryBuilderForm();
-        renderGeneratedSql();
+    renderQueryBuilderForm();
+    renderGeneratedSql();
+  });
+
+  $(document).on("change", ".select-column-check", function () {
+    updateBuilderSelectColumns(
+      $(".select-column-check:checked")
+        .map(function () {
+          return $(this).val();
+        })
+        .get(),
+    );
+  });
+
+  $(document).on("click", "#selectAllColumnsBtn", function () {
+    builderConfig.selectColumns = getBuilderColumns();
+    renderQueryBuilderForm();
+    renderGeneratedSql();
+  });
+
+  $(document).on("click", "#addJoinBtn", function () {
+    builderConfig.joins.push({
+      type: "INNER",
+      table: "",
+      on: "",
     });
+    renderQueryBuilderForm();
+  });
 
-    $(document).on("change", ".select-column-check", function () {
-        updateBuilderSelectColumns(
-            $(".select-column-check:checked")
-                .map(function () {
-                    return $(this).val();
-                })
-                .get()
-        );
+  $(document).on(
+    "change input",
+    ".join-type, .join-table, .join-on",
+    function () {
+      updateBuilderJoins(collectJoinRows());
+    },
+  );
+
+  $(document).on("click", ".remove-join-btn", function () {
+    const index = Number($(this).closest(".join-row").data("index"));
+    builderConfig.joins.splice(index, 1);
+    renderQueryBuilderForm();
+    renderGeneratedSql();
+  });
+
+  $(document).on("click", "#addWhereBtn", function () {
+    const firstColumn = getBuilderColumns()[0] || "";
+    builderConfig.whereConditions.push({
+      logical: "AND",
+      field: firstColumn,
+      operator: "=",
+      value: "",
     });
+    renderQueryBuilderForm();
+    renderGeneratedSql();
+  });
 
-    $(document).on("click", "#selectAllColumnsBtn", function () {
-        builderConfig.selectColumns = getBuilderColumns();
-        renderQueryBuilderForm();
-        renderGeneratedSql();
-    });
+  $(document).on(
+    "change input",
+    ".where-logical, .where-field, .where-operator, .where-value",
+    function () {
+      updateBuilderWhereConditions(collectWhereRows());
+    },
+  );
 
-    $(document).on("click", "#addJoinBtn", function () {
-        builderConfig.joins.push({
-            type: "INNER",
-            table: "",
-            on: ""
-        });
-        renderQueryBuilderForm();
-    });
+  $(document).on("click", ".remove-where-btn", function () {
+    const index = Number($(this).closest(".where-row").data("index"));
+    builderConfig.whereConditions.splice(index, 1);
+    renderQueryBuilderForm();
+    renderGeneratedSql();
+  });
 
-    $(document).on("change input", ".join-type, .join-table, .join-on", function () {
-        updateBuilderJoins(collectJoinRows());
-    });
+  $(document).on("change", ".group-column-check", function () {
+    updateBuilderGroupBy(
+      $(".group-column-check:checked")
+        .map(function () {
+          return $(this).val();
+        })
+        .get(),
+    );
+  });
 
-    $(document).on("click", ".remove-join-btn", function () {
-        const index = Number($(this).closest(".join-row").data("index"));
-        builderConfig.joins.splice(index, 1);
-        renderQueryBuilderForm();
-        renderGeneratedSql();
-    });
+  $(document).on(
+    "change",
+    "#orderFieldSelect, #orderDirectionSelect",
+    function () {
+      const field = $("#orderFieldSelect").val();
 
-    $(document).on("click", "#addWhereBtn", function () {
-        const firstColumn = getBuilderColumns()[0] || "";
-        builderConfig.whereConditions.push({
-            logical: "AND",
-            field: firstColumn,
-            operator: "=",
-            value: ""
-        });
-        renderQueryBuilderForm();
-        renderGeneratedSql();
-    });
+      updateBuilderOrderBy(
+        field
+          ? [
+              {
+                field,
+                direction: $("#orderDirectionSelect").val(),
+              },
+            ]
+          : [],
+      );
+    },
+  );
 
-    $(document).on("change input", ".where-logical, .where-field, .where-operator, .where-value", function () {
-        updateBuilderWhereConditions(collectWhereRows());
-    });
+  $(document).on("click", "#runBuiltQueryBtn", runBuiltQuery);
+  $(document).on("click", "#copyBuiltSqlBtn", copyGeneratedSql);
 
-    $(document).on("click", ".remove-where-btn", function () {
-        const index = Number($(this).closest(".where-row").data("index"));
-        builderConfig.whereConditions.splice(index, 1);
-        renderQueryBuilderForm();
-        renderGeneratedSql();
-    });
+  $(document).on("click", "#saveBuiltQueryBtn", function () {
+    const name = prompt("Query name?", "Saved visual query");
+    if (!name) return;
 
-    $(document).on("change", ".group-column-check", function () {
-        updateBuilderGroupBy(
-            $(".group-column-check:checked")
-                .map(function () {
-                    return $(this).val();
-                })
-                .get()
-        );
-    });
+    saveBuiltQuery(name.trim());
+  });
 
-    $(document).on("change", "#orderFieldSelect, #orderDirectionSelect", function () {
-        const field = $("#orderFieldSelect").val();
-
-        updateBuilderOrderBy(
-            field
-                ? [
-                    {
-                        field,
-                        direction: $("#orderDirectionSelect").val()
-                    }
-                ]
-                : []
-        );
-    });
-
-    $(document).on("click", "#runBuiltQueryBtn", runBuiltQuery);
-    $(document).on("click", "#copyBuiltSqlBtn", copyGeneratedSql);
-
-    $(document).on("click", "#saveBuiltQueryBtn", function () {
-        const name = prompt("Query name?", "Saved visual query");
-        if (!name) return;
-
-        saveBuiltQuery(name.trim());
-    });
-
-    $(document).on("click", ".load-saved-query-btn", function () {
-        loadSavedQuery($(this).data("query-id"));
-    });
+  $(document).on("click", ".load-saved-query-btn", function () {
+    loadSavedQuery($(this).data("query-id"));
+  });
 }
 
 $(document).ready(renderQueryBuilderPage);
